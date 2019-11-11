@@ -1,20 +1,3 @@
 {
-  "tasks": [
-    {
-      "id": 3,
-      "name": "sad",
-      "checked": false,
-      "taskName": "sad"
-    },
-    {
-      "id": 5,
-      "name": "ывывв",
-      "checked": true
-    },
-    {
-      "id": 6,
-      "name": "sdxfcgва",
-      "checked": true
-    }
-  ]
+  "tasks": []
 }

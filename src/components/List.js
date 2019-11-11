@@ -1,67 +1,61 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import axios from 'axios';
 import '../App.css';
 import Task from './Task';
 
-class List extends React.Component {
-    constructor(props) {
-        super(props);
-        const { tasks } = this.props;
-        this.state = {
-            tasks,
-        };
-    }
+const List = props => {
+    const { tasks } = props;
+    const [stateTasks, setTasks] = useState(tasks);
 
-    // componentDidMount() {
-    //     this.loadData();
-    // }
-
-    componentDidUpdate() {
+    const loadData = () => {
         axios.get(`${process.env.REACT_APP_API}/tasks`).then(res => {
-            const { tasks } = this.state;
-            if (tasks.length !== res.data.length) {
-                this.setState({ tasks: res.data });
-            }
-        });
-    }
-
-    loadData = () => {
-        axios.get(`${process.env.REACT_APP_API}/tasks`).then(res => {
-            this.setState({ tasks: res.data });
+            setTasks(res.data);
             return res.data;
         });
     };
 
-    deleteTask = id => {
+    useEffect(() => {
+        axios.get(`${process.env.REACT_APP_API}/tasks`).then(res => {
+            if (stateTasks.length !== res.data.length) {
+                setTasks(res.data);
+            }
+            return res.data;
+        });
+    }, [stateTasks]);
+
+    useEffect(() => {
+        loadData();
+    }, [tasks]);
+
+    const deleteTask = id => {
         axios.delete(`${process.env.REACT_APP_API}/tasks/${id}`);
-        this.loadData();
+        loadData();
     };
 
-    render() {
-        const { tasks } = this.state;
+    return (
+        <>
+            {stateTasks.map(task => (
+                <React.Fragment key={task.id}>
+                    <Task id={task.id} taskName={task.name} checked={task.checked} deleteTask={deleteTask} />
+                </React.Fragment>
+            ))}
+        </>
+    );
+};
 
-        return (
-            <>
-                {tasks.map(task => (
-                    <React.Fragment key={task.id}>
-                        <Task id={task.id} taskName={task.name} checked={task.checked} deleteTask={this.deleteTask} />
-                    </React.Fragment>
-                ))}
-            </>
-        );
-    }
-}
+List.defaultProps = {
+    tasks: [],
+};
 
 List.propTypes = {
-    tasks: PropTypes.instanceOf(Array).isRequired,
-    // tasks: PropTypes.arrayOf(
-    //     PropTypes.shape({
-    //         id: PropTypes.number.isRequired,
-    //         taskName: PropTypes.string.isRequired,
-    //         checked: PropTypes.bool.isRequired,
-    //     }),
-    // ),
+    tasks: PropTypes.arrayOf(
+        PropTypes.shape({
+            id: PropTypes.number,
+            name: PropTypes.string,
+            checked: PropTypes.boolean,
+        }),
+    ),
 };
 
 export default List;
